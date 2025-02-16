@@ -1,2 +1,3 @@
 tests/runs/
 *.pt
+__pycache__/
