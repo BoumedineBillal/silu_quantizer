@@ -101,6 +101,27 @@ model = YOLO('yolov5n.pt').eval().to('cuda' if torch.cuda.is_available() else 'c
 
 
 
+class NewAct(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.a = QuantizeActivation(bit_width=8, clamp_values=(-4.0, None), use_zero_point=False)
+        self.c = QuantizeActivation(bit_width=8, clamp_values=(None, None))
+        self.b = SigmoidApproximationActivation(self.a, self.c)
+        
+    def forward(self, x):
+        
+        # fake quantization pass
+        temp = self.a(x)
+        temp = self.b(temp)
+        temp = self.c(temp)
+        
+        # real int8 quantization pass (int8 --> silu(int16 operations) --> int8)
+        x = self.a(x)
+        x = self.b(x)
+        x = self.c(x)
+        
+        return x
+
 # Replace activation in Conv blocks only
 for name, module in model.model.named_modules():
     # Check if it's a Conv module with activation
@@ -121,11 +142,8 @@ for name, module in model.model.named_modules():
         #module.act = nn.Sequential(QuantizeActivation(bit_width=8), SigmoidApproximationActivation(), QuantizeActivation(bit_width=8))
         #module.act = nn.Sequential(QuantizeActivation(bit_width=8), module.act)
         
-        a = QuantizeActivation(bit_width=8, use_zero_point=False)
-        c = QuantizeActivation(bit_width=8)
-        b = SigmoidApproximationActivation(a, c)
         
-        module.act = nn.Sequential(a, b, c)
+        module.act = NewAct()
         
         
 

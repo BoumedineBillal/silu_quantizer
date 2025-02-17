@@ -56,10 +56,9 @@ class Quantizer:
         else:
             self.zero_point = torch.tensor(0.0)
 
-    def quantize(self, x, q_min, q_max):
+    def quantize(self, x):
         """Perform quantization with clamping"""
-        x_clamped = torch.clamp(x, q_min, q_max)
-        x_quant = torch.round(x_clamped / self.scale + self.zero_point.to(x.device))
+        x_quant = torch.round(x / self.scale + self.zero_point.to(x.device))
         return torch.clamp(x_quant, self.quant_min, self.quant_max)
 
     def dequantize(self, x_quant):
@@ -68,7 +67,7 @@ class Quantizer:
 
 class QuantizeActivation(nn.Module):
     """Modular Power-of-2 Activation Quantizer"""
-    def __init__(self, bit_width=8, use_zero_point=True, clamp_values=(-4.0, None)):
+    def __init__(self, bit_width=8, use_zero_point=True, clamp_values=(None, None)):
         super().__init__()
         self.bit_width = bit_width
         self.use_zero_point = use_zero_point
@@ -91,7 +90,7 @@ class QuantizeActivation(nn.Module):
         self.quantizer.calculate_zero_point(q_min)
         
         # Quantization process
-        x_quant = self.quantizer.quantize(x, q_min, q_max)
+        x_quant = self.quantizer.quantize(x)
         x_dequant = self.quantizer.dequantize(x_quant)
         
         # Store quantized values
@@ -101,7 +100,8 @@ class QuantizeActivation(nn.Module):
 
     def _clamp_input(self, x):
         """Apply input clamping"""
-        x = torch.where(x > self.clamp_min, x, torch.tensor(self.clamp_min, device=x.device))
+        if self.clamp_min is not None:
+            x = torch.where(x > self.clamp_min, x, torch.tensor(self.clamp_min, device=x.device))
         if self.clamp_max is not None:
             x = torch.where(x < self.clamp_max, x, torch.tensor(self.clamp_max, device=x.device))
         return x
