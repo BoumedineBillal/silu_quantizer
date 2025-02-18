@@ -52,7 +52,7 @@ class SiluApproximation(nn.Module):
         y_fixed = torch.where(x_clipped <= 0, y_approx_fixed, one_fixed - y_approx_fixed)
         
         # Convert back to floating point.
-        sigmoid_approx = y_fixed.to(torch.float32) / self.fixed_point_scale
+        sigmoid_approx = y_fixed.to(torch.float16) / self.fixed_point_scale
         
         # Compute SiLU as x * sigmoid(x).
         silu_approx = x_clipped * sigmoid_approx

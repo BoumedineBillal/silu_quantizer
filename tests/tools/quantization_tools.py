@@ -34,6 +34,7 @@ class Quantizer:
         self.quant_min = -(2 ** (bit_width - 1))
         self.quant_max = (2 ** (bit_width - 1)) - 1
         self.scale = None
+        self.exponent = None
         self.zero_point = None
 
     def calculate_scale(self, q_min, q_max):
@@ -46,8 +47,9 @@ class Quantizer:
             return
             
         log2_scale = torch.log2(dynamic_range / target_range)
-        n = torch.ceil(log2_scale)
-        self.scale = 2 ** torch.where(torch.isinf(n), torch.tensor(0.0), n)
+        log2_scale_ceil = torch.ceil(log2_scale)
+        self.exponent = - log2_scale_ceil
+        self.scale = 2 ** torch.where(torch.isinf(log2_scale_ceil), torch.tensor(0.0), log2_scale_ceil)
 
     def calculate_zero_point(self, q_min):
         """Calculate zero-point for asymmetric quantization"""
