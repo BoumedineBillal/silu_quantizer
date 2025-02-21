@@ -64,26 +64,14 @@ class NewAct(nn.Module):
             
         
         # --- Real Quantization Pass ---
-        # Compute the operations only once with gradients.
-        
+        # Perform clamping and quantization
         x = self.pre_activation_quantizer._clamp_input(x)
         xq = self.pre_activation_quantizer.quantizer.quantize(x)
         
-        n1 = self.pre_activation_quantizer.quantizer.exponent
-        n2 = self.post_activation_quantizer.quantizer.exponent
-        z2 = self.post_activation_quantizer.quantizer.zero_point
+        # Use the core quantized activation from SiluApproximation.
+        xq = self.silu_approx.quantized_activation(xq)
         
-        xq2 = torch.round(xq.clone())
-        
-        x_out1 = 2**(n2-(3*n1+5)) * (xq2 + 2**(2+n1))**2 * xq + z2
-        
-        x_out2 = 2**(n2-(3*n1+5)) *(2**(2*n1+5) - (xq2 - 2**(2+n1))**2) * xq + z2
-        
-        x_out = torch.where(xq <= 0, x_out1, x_out2) 
-        
-        x_out = torch.where(xq > 4*2**n1, xq*2**(n2-n1)+z2, x_out)
-        
-        x = self.post_activation_quantizer.quantizer.dequantize(x_out)
+        x = self.post_activation_quantizer.quantizer.dequantize(xq)
         
         return x
 

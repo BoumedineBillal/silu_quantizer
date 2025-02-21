@@ -98,6 +98,26 @@ class SiluApproximation(nn.Module):
         tmp = tmp >> 1 # Divide by 2  
         
         return tmp
+    
+    def quantized_activation(self, xq):
+        """
+        Compute the quantized activation using the core snippet.
+        
+        This method assumes that the input 'xq' is already quantized using the
+        pre_activation_quantizer. It does not perform any clamping or dequantization.
+        """
+        n1 = self.pre_activation_quantizer.quantizer.exponent
+        n2 = self.post_activation_quantizer.quantizer.exponent
+        z2 = self.post_activation_quantizer.quantizer.zero_point
+
+        xq2 = torch.round(xq.clone())
+
+        x_out1 = 2**(n2 - (3 * n1 + 5)) * (xq2 + 2**(2 + n1))**2 * xq + z2
+        x_out2 = 2**(n2 - (3 * n1 + 5)) * (2**(2 * n1 + 5) - (xq2 - 2**(2 + n1))**2) * xq + z2
+
+        x_out = torch.where(xq <= 0, x_out1, x_out2)
+        x_out = torch.where(xq > 4 * 2**n1, xq * 2**(n2 - n1) + z2, x_out)
+        return x_out
 
     def extra_repr(self) -> str:
         return (f"Q{self.integer_bits}.{self.fractional_bits} fixed-point, "
