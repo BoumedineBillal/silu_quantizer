@@ -4,7 +4,7 @@ This project provides an efficient approximation of the **SiLU activation functi
 
 ## 📖 Blog Post  
 A detailed explanation of the method and implementation is available here:  
-🔗 **[ESP32-P4 Deep Learning Pipeline: Approximating SiLU for Efficient Quantization](<insert_blog_url_here>)**
+🔗 **[ESP32-P4 Deep Learning Pipeline: Approximating SiLU for Efficient Quantization](https://boumedinebillal.blogspot.com/2025/02/esp32-p4-deep-learning-pipeline-update.html)**
 
 ## 📄 Reference Paper  
 The sigmoid approximation used in this project is based on:  
