@@ -1,5 +1,6 @@
 # Ignore all runs folders anywhere in the repo
 **/runs/
+**/temp/
 
 # Ignore PyTorch model checkpoints
 *.pt
