@@ -1,3 +1,8 @@
-tests/runs/
+# Ignore all runs folders anywhere in the repo
+**/runs/
+
+# Ignore PyTorch model checkpoints
 *.pt
+
+# Ignore compiled Python files
 __pycache__/

@@ -1,7 +1,12 @@
+import sys
+import os
+# Add the parent directory to sys.path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
+
 import torch
 import torch.nn as nn
-from ..quantization.quantization_tools import QuantizeActivation, test_quantization, get_qstat
-from ..approximation.act_approximation_tools import SiluApproximation, test_silu_approximation
+from quantization.quantization_tools import QuantizeActivation, test_quantization, get_qstat
+from approximation.act_approximation_tools import SiluApproximation, test_silu_approximation
 
 class QSiLUApprox(nn.Module):
     """
@@ -36,9 +41,9 @@ class QSiLUApprox(nn.Module):
 
         # --- Real Quantization Pass ---
         x = self.pre_activation_quantizer._clamp_input(x)
-        xq = self.pre_activation_quantizer.quantize(x)
+        xq = self.pre_activation_quantizer.quantizer.quantize(x)
         xq = self.silu_approx.quantized_activation(xq)
-        x = self.post_activation_quantizer.quantize(xq)
+        x = self.post_activation_quantizer.quantizer.dequantize(xq)
 
         return x
 
