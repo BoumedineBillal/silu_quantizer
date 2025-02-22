@@ -7,7 +7,7 @@ from torchvision.datasets import CocoDetection
 import torchvision.transforms as T
 import os
 
-from tools.quantization_tools import QuantizeActivation, test_quantization
+from tools.quantization_tools import QuantizeActivation, test_quantization, get_qstat
 from tools.act_approximation_tools import SiluApproximation, test_silu_approximation
 
 

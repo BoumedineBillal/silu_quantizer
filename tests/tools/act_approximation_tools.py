@@ -109,6 +109,12 @@ class SiluApproximation(nn.Module):
         n1 = self.pre_activation_quantizer.quantizer.exponent
         n2 = self.post_activation_quantizer.quantizer.exponent
         z2 = self.post_activation_quantizer.quantizer.zero_point
+        
+        """
+        if n1 <= 2:
+            xq2 = torch.round(xq.clone())
+            return torch.where(xq <= 0, 0, xq2 * 2**(n2 - n1) + z2)
+        """
 
         xq2 = torch.round(xq.clone())
 

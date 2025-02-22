@@ -1,6 +1,13 @@
 import torch
 import torch.nn as nn
 
+# Global variable to store frequencies.
+qstat = {}
+
+def get_qstat():
+    global qstat
+    return qstat
+
 class RangeCollector:
     """Handles dynamic range calculation for quantization"""
     def __init__(self, mode='asymmetric'):
@@ -38,6 +45,7 @@ class Quantizer:
         self.zero_point = None
 
     def calculate_scale(self, q_min, q_max):
+        global qstat
         """Calculate power-of-2 scale factor"""
         dynamic_range = q_max - q_min
         target_range = self.quant_max - self.quant_min
@@ -48,9 +56,13 @@ class Quantizer:
             
         log2_scale = torch.log2(dynamic_range / target_range)
         log2_scale_ceil = torch.ceil(log2_scale)
+        if torch.isinf(log2_scale_ceil):log2_scale_ceil = torch.tensor(0.0, device=log2_scale_ceil.device)  
         self.exponent = - log2_scale_ceil
         self.scale = 2 ** torch.where(torch.isinf(log2_scale_ceil), torch.tensor(0.0), log2_scale_ceil)
 
+        # Increase the frequency count for the given value.
+        qstat[int(self.exponent)] = qstat.get(int(self.exponent), 0) + 1
+        
     def calculate_zero_point(self, q_min):
         """Calculate zero-point for asymmetric quantization"""
         if self.use_zero_point:
