@@ -21,7 +21,7 @@ model = YOLO('yolov5n.pt').eval().to('cuda' if torch.cuda.is_available() else 'c
 replace_module(model.model, nn.SiLU, QSiLUApprox, ["act"])
         
         
-"""
+
 
 results = model.val(
     data='coco.yaml',
@@ -32,7 +32,6 @@ results = model.val(
     workers=14,
 )
 
-"""
 
 
 
