@@ -1,6 +1,6 @@
 # SiLU Quantizer for Embedded AI
 
-![QSiLUApprox](assets/output.PNG)
+![QSiLUApprox](assets/output.png)
 
 This project provides an efficient approximation of the **SiLU activation function** optimized for **quantized inference** on embedded devices, specifically targeting the **ESP32-P4**.
 
