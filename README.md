@@ -1,3 +1,5 @@
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/BoumedineBillal/object-detection-yolo/blob/main/notebooks/benchmark_qsilu.ipynb)
+
 # SiLU Quantizer for Embedded AI
 
 ![QSiLUApprox](assets/output.png)
