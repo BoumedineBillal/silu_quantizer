@@ -1,7 +1,8 @@
 import sys
 import os
-# Add the parent directory to sys.path
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
+# Add the 'src' directory to sys.path
+src_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+sys.path.append(src_dir)
 
 import torch
 import torch.nn as nn

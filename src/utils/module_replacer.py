@@ -1,7 +1,9 @@
 import sys
 import os
-# Add the parent directory to sys.path
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
+# Add the 'src' directory to sys.path
+src_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+sys.path.append(src_dir)
+
 
 import torch.nn as nn
 from QSiLUApprox.QSiLUApprox import QSiLUApprox
@@ -78,7 +80,7 @@ def test_replace_silu():
     print("\n[Before Replacement]")
     print(model)
 
-    model = replace_module(model, nn.SiLU, QSiLUApprox, ["act"])
+    replace_module(model, nn.SiLU, QSiLUApprox, ["act"])
 
     print("\n[After Replacement]")
     print(model)
@@ -119,7 +121,7 @@ def test_preserve_other_activations():
     print("\n[Before Replacement]")
     print(model)
 
-    model = replace_module(model, nn.SiLU, QSiLUApprox, ["act"])
+    replace_module(model, nn.SiLU, QSiLUApprox, ["act"])
 
     print("\n[After Replacement]")
     print(model)
@@ -156,7 +158,7 @@ def test_replace_silu_in_sequential():
     print("\n[Before Replacement]")
     print(model)
 
-    model = replace_module(model, nn.SiLU, QSiLUApprox, [""])  # [""] important for number atr
+    replace_module(model, nn.SiLU, QSiLUApprox, [""])  # [""] important for number atr
 
     print("\n[After Replacement]")
     print(model)
