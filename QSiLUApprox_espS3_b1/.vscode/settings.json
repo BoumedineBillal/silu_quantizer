@@ -1,0 +1,34 @@
+{
+    "C_Cpp.intelliSenseEngine": "default",
+    "idf.espIdfPathWin": "c:\\tools\\esp-idf-v5.4",
+    "idf.toolsPathWin": "C:\\Users\\orani\\.espressif",
+    "idf.pythonInstallPath": "C:\\Users\\orani\\.espressif\\tools\\idf-python\\3.11.2\\python.exe",
+    "idf.portWin": "COM5",
+    "idf.flashType": "UART",
+    "idf.customExtraVars": {
+        "IDF_TARGET": "esp32s3"
+    },
+    "idf.openOcdConfigs": [
+        "board/esp32s3-builtin.cfg"
+    ],
+    "files.associations": {
+        "freertos.h": "c",
+        "task.h": "c",
+        "tools.h": "c",
+        "esp_system.h": "c",
+        "esp_mac.h": "c",
+        "charconv": "cpp",
+        "stdio.h": "c",
+        "chrono": "cpp",
+        "optional": "cpp",
+        "format": "cpp",
+        "ratio": "cpp",
+        "system_error": "cpp",
+        "array": "cpp",
+        "functional": "cpp",
+        "tuple": "cpp",
+        "type_traits": "cpp",
+        "utility": "cpp",
+        "compare": "c"
+    }
+}

@@ -66,7 +66,7 @@ class Quantizer:
     def calculate_zero_point(self, q_min):
         """Calculate zero-point for asymmetric quantization"""
         if self.use_zero_point:
-            self.zero_point = torch.round(self.quant_min - q_min / self.scale)
+            self.zero_point = torch.trunc(self.quant_min - q_min / self.scale) # torch.trunc is important
         else:
             self.zero_point = torch.tensor(0.0)
 

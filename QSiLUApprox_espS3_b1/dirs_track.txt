@@ -1,0 +1,8 @@
+esp32s3_project/
+│── main/
+│   │── main.c
+│   │── config.h   // Contains ALIGNED_16 and CUSTOM_DEBUG
+│── components/
+│   │── tools/
+│   │   │── tools.c
+│   │   │── tools.h

@@ -2,6 +2,7 @@
 **/runs/
 **/temp/
 **/tests/
+**/build/
 
 # Ignore PyTorch model checkpoints
 *.pt

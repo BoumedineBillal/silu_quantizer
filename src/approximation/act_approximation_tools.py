@@ -1,6 +1,10 @@
 import torch
 import torch.nn as nn
 
+
+def arithmetic_right_shift(x, n):
+    return torch.floor(x / (2 ** n)) # [3, -3] to tensor([ 1, -2])
+
 class SiluApproximation(nn.Module):
     """
     Approximates the SiLU activation function using fixed-point arithmetic.
@@ -33,7 +37,6 @@ class SiluApproximation(nn.Module):
         self.clamp_min, self.clamp_max = clamp
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        device = x.device
         
         # Clamp the input within the desired approximation range.
         x_clipped = torch.clamp(x, self.clamp_min, self.clamp_max)
@@ -106,6 +109,48 @@ class SiluApproximation(nn.Module):
         This method assumes that the input 'xq' is already quantized using the
         pre_activation_quantizer. It does not perform any clamping or dequantization.
         """
+        n1 = int(self.pre_activation_quantizer.quantizer.exponent.item())
+        n2 = int(self.post_activation_quantizer.quantizer.exponent.item())
+        z2 = int(self.post_activation_quantizer.quantizer.zero_point.item())
+        
+        """
+        if n1 <= 2:
+            xq2 = torch.round(xq.clone())
+            return torch.where(xq <= 0, 0, xq2 * 2**(n2 - n1) + z2)
+        """
+
+        xq2 = torch.floor(xq.clone())
+
+        #x_out1 = 2**(n2 - (3 * n1 + 5)) * (xq2 + 2**(2 + n1))**2 * xq2 + z2
+        #x_out2 = 2**(n2 - (3 * n1 + 5)) * (2**(2 * n1 + 5) - (xq2 - 2**(2 + n1))**2) * xq2 + z2
+        
+        #c1 = 2 ** (n2 - (3 * n1 + 5))
+        #x_out1 = ( ( (xq2 + 2**(2 + n1))**2 * xq2 ) * c1 ) + z2
+        #x_out2 = 2**(n2 - (3 * n1 + 5)) * (2**(2 * n1 + 5) - (xq2 - 2**(2 + n1))**2) * xq2 + z2
+        
+        c1 = 2**(n2 - (3 * n1 + 5))
+        c2 = 2**(2 + n1)
+        c3 = 2**(2 * n1 + 5)
+        c4 = 2**(n2 - n1)
+        c5 = 4 * 2**n1
+        
+        
+        x_out1 = c1 * (xq2 + c2)**2 * xq2 + z2
+        x_out2 = c1 * (c3 - (xq2 - c2)**2) * xq2 + z2
+        
+        
+        x_out = torch.where(xq <= 0, x_out1, x_out2)
+        x_out = torch.where(xq > c5, xq * c4 + z2, x_out)
+        
+        return torch.floor(x_out)
+    
+    def quantized_activation_(self, xq):
+        """
+        Compute the quantized activation using the core snippet.
+        
+        This method assumes that the input 'xq' is already quantized using the
+        pre_activation_quantizer. It does not perform any clamping or dequantization.
+        """
         n1 = self.pre_activation_quantizer.quantizer.exponent
         n2 = self.post_activation_quantizer.quantizer.exponent
         z2 = self.post_activation_quantizer.quantizer.zero_point
@@ -149,6 +194,8 @@ def test_silu_approximation():
     
     print(f"Input:             {x_tensor}")
     print(f"Approximated SiLU: {y_approx}")
+    
+
 
 if __name__ == "__main__":
     test_silu_approximation()
